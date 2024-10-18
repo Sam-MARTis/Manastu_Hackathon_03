@@ -4,19 +4,61 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 const satelliteRange = 500;
 const TIME_STEP = 0.01;
 let debris;
-let s = 1
-let shrink = 1
-let t1 = 0
+let s1 = 1
+let s2 = 1
+let shrink1 = 1
+let shrink2 = 1
+const bound = 700
+const lb = 0.3
+let t1 = bound - lb
+let t2 = bound - lb
+let shrunkOne = false
+let shrunkTwo = false
+
+const easeInOutQuad = (x) => {
+  return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+  }
 const makeRender = (t=0) => {
-  t1+=1
-  interceptor.fold1(s)
-  s = 0.3+ 0.7*(1-Math.cos(t1/50))/2
-  if(s < 0.1){
-    shrink = -1
+  t1+=1*shrink1
+  t2+=1*shrink2
+  interceptor.fold1(s1)
+  interceptor.fold2(s2)
+  // const bound = 700
+  // const lb = 0.3
+  const minShrink = 0.1
+  s1 = minShrink+(1-minShrink)*easeInOutQuad(t1/bound)
+  s2 = minShrink+(1-minShrink)*easeInOutQuad(t2/bound)
+
+  if(s1 < minShrink*1.001){
+    shrunkOne = true
   }
-  if(s > 1){
-    shrink = 1
+  if(s2 < minShrink*1.001){
+    shrunkTwo = true
   }
+  if(!shrunkOne){
+    shrink2 = 0;
+  }
+  if(shrunkOne && !shrunkTwo){
+    shrink1 = 0;
+    shrink2 = 1;
+  }
+  console.log(shrunkOne, shrunkTwo)
+  console.log(shrink1, shrink2)
+  console.log(t1, t2)
+  // if(shrunkOne && shrunkTwo){
+  //   shrink1 = -1;
+  //   shrink2 = -1;
+  // }
+
+
+  if(t1 < lb || t1 > bound ){
+    shrink1 = -shrink1
+  }
+  if(s1 < lb || s2 > 1 ){
+    shrink2 = -shrink2
+    console.log("FLipped")
+  }
+
 
   
 
